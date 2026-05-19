@@ -1,0 +1,40 @@
+[project]
+name = "ai-reliability-lab"
+version = "0.1.0"
+description = "A production-style RAG reliability lab for MLOps documentation."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "fastapi>=0.124,<0.125",
+  "pydantic>=2.12,<3",
+  "uvicorn[standard]>=0.38,<0.39",
+]
+
+[project.scripts]
+ai-lab = "ai_reliability_lab.cli:main"
+
+[project.optional-dependencies]
+dev = [
+  "httpx>=0.28,<0.29",
+  "pytest>=9.0,<10",
+  "pytest-cov>=7.0,<8",
+  "ruff>=0.14,<0.15",
+]
+
+[build-system]
+requires = ["setuptools>=80"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
