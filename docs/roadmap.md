@@ -4,7 +4,7 @@ This is the honest next-step list I would use if I kept developing the lab.
 
 ## Near Term
 
-- Add an optional OpenAI or local-model provider behind the existing answer composer
+- Add an optional hosted or local-model provider behind the existing answer composer
   interface.
 - Add embedding-based retrieval and compare it against the current lexical baseline.
 - Save eval reports as Markdown artifacts so changes are easier to review in pull
@@ -24,4 +24,3 @@ This is the honest next-step list I would use if I kept developing the lab.
 - Add chunking experiments with different max lengths and overlap.
 - Add prompt-injection and unsupported-question eval cases.
 - Add model cards for any local or hosted model used later.
-

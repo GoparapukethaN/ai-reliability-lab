@@ -103,8 +103,8 @@ docker run --rm -p 8000:8000 ai-reliability-lab
 The part I would talk through in an interview is the tradeoff between simple,
 deterministic behavior and production realism. I intentionally started with local
 retrieval and a deterministic answer composer so tests can prove behavior without an
-external model. The provider boundary is where I would add OpenAI, a local model, or a
-reranker later.
+external model. The provider boundary is where I would add a hosted LLM provider, a local
+model, or a reranker later.
 
 The most important design decision is that every answer carries evidence. If retrieval
 does not find evidence, the system refuses instead of filling the gap with a confident
