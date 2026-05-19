@@ -116,4 +116,5 @@ guess. That is the reliability habit I want in any AI system I own.
 - [Case Study](docs/case-study.md)
 - [Evaluation](docs/evaluation.md)
 - [Interview Guide](docs/interview-guide.md)
+- [Note: What I Learned Building Evals Before Adding an LLM](docs/notes/evals-before-llms.md)
 - [Roadmap](docs/roadmap.md)
