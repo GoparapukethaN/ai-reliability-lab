@@ -1,13 +1,18 @@
-.PHONY: install test lint run ingest eval metrics
+PYTHON ?= python3
+
+.PHONY: install test lint verify run ingest eval metrics
 
 install:
-	python -m pip install -e ".[dev]"
+	$(PYTHON) -m pip install -e ".[dev]"
 
 test:
-	pytest
+	$(PYTHON) -m pytest
 
 lint:
-	ruff check .
+	$(PYTHON) -m ruff check .
+
+verify:
+	./scripts/verify-local.sh
 
 run:
 	uvicorn ai_reliability_lab.app:app --reload

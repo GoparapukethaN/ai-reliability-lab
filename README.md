@@ -83,6 +83,15 @@ You can point the lab at another corpus or database without changing code:
 LAB_CORPUS_DIR=data/corpus LAB_DATABASE_PATH=data/runtime/lab.db ai-lab ingest
 ```
 
+## Local Verification
+
+Hosted CI is not required for this repo. The local verification path runs lint, tests,
+and a CLI smoke test against a temporary database:
+
+```bash
+make verify
+```
+
 ## Docker
 
 ```bash
