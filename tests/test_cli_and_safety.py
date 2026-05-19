@@ -83,6 +83,7 @@ def test_cli_ingests_queries_and_runs_evals(tmp_path: Path, capsys) -> None:
     )
     assert query_code == 0
     assert "registry alias" in capsys.readouterr().out
+    assert SQLiteStore(database_path).metrics_summary()["query_count"] == 1
 
     eval_code = main(
         [

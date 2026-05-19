@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
+from time import perf_counter
 from typing import Any
 
 from ai_reliability_lab.answering import DeterministicAnswerComposer
@@ -30,13 +31,22 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "query":
         retriever = Retriever(store)
         composer = DeterministicAnswerComposer()
+        started = perf_counter()
         retrieved = retriever.search(args.question, limit=args.limit)
         answer = composer.compose(args.question, retrieved)
+        latency_ms = round((perf_counter() - started) * 1000, 2)
+        store.record_query(
+            question=args.question,
+            retrieved_sources=[chunk.source for chunk in retrieved],
+            latency_ms=latency_ms,
+            source_coverage=answer.source_coverage,
+        )
         _print_json(
             {
                 "answer": answer.answer,
                 "citations": [citation.to_dict() for citation in answer.citations],
                 "retrieved_chunks": [chunk.to_dict() for chunk in retrieved],
+                "latency_ms": latency_ms,
                 "diagnostics": {
                     "source_coverage": answer.source_coverage,
                     "refused": answer.refused,
