@@ -1,4 +1,4 @@
-# Demo Walkthrough
+# Enterprise RAG Demo Walkthrough
 
 This is the path I use to show the project end to end: ingest documents, ask a grounded
 question, compare providers, run evals, and inspect metrics.

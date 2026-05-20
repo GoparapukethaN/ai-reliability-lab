@@ -1,4 +1,4 @@
-# Case Study: AI Reliability Platform
+# Case Study: Enterprise RAG Reliability Platform
 
 ## Problem
 
@@ -10,6 +10,10 @@ RAG demos are easy to build, but they often hide the questions that matter in pr
 - Can the system be run and tested without depending on an external model provider?
 
 I built this platform to explore those questions from an MLOps point of view.
+
+The "enterprise" label here describes the reliability workflow: ingestion, citations,
+refusal behavior, eval gates, traces, reports, and dashboard inspection. It is not a
+claim of production users or external adoption.
 
 ## Constraints
 

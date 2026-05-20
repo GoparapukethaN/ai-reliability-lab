@@ -1,9 +1,13 @@
-# AI Reliability Platform
+# Enterprise RAG Reliability Platform
 
 I built this project to understand how I would move a RAG or agent workflow from a
 notebook-style demo into a measurable system. The platform ingests MLOps runbooks,
 retrieves evidence, answers with citations, compares answer providers, runs regression
 evals, and exposes traces and metrics through both an API and a dashboard.
+
+This is the full backend/platform implementation behind the enterprise-style RAG story
+in my portfolio. I use "enterprise" to describe the reliability workflow shape, not to
+claim production users or external adoption.
 
 The default path is completely local and keyless. Optional OpenAI and Ollama providers
 can be enabled when I want to compare a hosted or local model against the deterministic
@@ -168,6 +172,7 @@ pass/fail results. It does not claim production users or adoption.
 ## More Detail
 
 - [Architecture](docs/architecture.md)
+- [Enterprise RAG Map](docs/enterprise-rag.md)
 - [Providers](docs/providers.md)
 - [Observability](docs/observability.md)
 - [Evaluation](docs/evaluation.md)
