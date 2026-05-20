@@ -37,6 +37,8 @@ make docker-check
 
 ![Dashboard query demo](assets/dashboard-query.jpg)
 
+![Dashboard eval gate after a passing local run](assets/dashboard-eval.png)
+
 ## CLI Demo
 
 ```bash
