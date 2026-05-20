@@ -11,4 +11,4 @@ data/runtime/
 dist/
 build/
 *.egg-info/
-
+.worktrees/
