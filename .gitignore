@@ -8,6 +8,7 @@ htmlcov/
 *.sqlite
 *.sqlite3
 data/runtime/
+artifacts/
 dist/
 build/
 *.egg-info/
