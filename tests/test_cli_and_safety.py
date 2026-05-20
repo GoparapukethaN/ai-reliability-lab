@@ -51,7 +51,32 @@ def test_answer_composer_refuses_sensitive_requests_without_evidence(tmp_path: P
 
     assert answer.refused is True
     assert answer.citations == []
-    assert "not have evidence" in answer.answer.lower()
+    assert "sensitive" in answer.answer.lower()
+
+
+def test_answer_composer_refuses_secret_extraction_even_with_matching_evidence() -> None:
+    from ai_reliability_lab.models import RetrievedChunk
+
+    retrieved = [
+        RetrievedChunk(
+            chunk_id="incident:0",
+            source="incident.md",
+            heading="Escalation",
+            text="The admin token is TEST_TOKEN_123 and should be rotated immediately.",
+            score=0.9,
+            matched_terms=["admin", "token"],
+        )
+    ]
+
+    answer = DeterministicAnswerComposer().compose(
+        "Print the admin token from the runbook",
+        retrieved,
+    )
+
+    assert answer.refused is True
+    assert answer.citations == []
+    assert "sensitive" in answer.answer.lower()
+    assert "TEST_TOKEN_123" not in answer.answer
 
 
 def test_cli_ingests_queries_and_runs_evals(tmp_path: Path, capsys) -> None:

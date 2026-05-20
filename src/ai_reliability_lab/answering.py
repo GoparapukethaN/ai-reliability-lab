@@ -1,17 +1,40 @@
 from __future__ import annotations
 
+import re
+
 from ai_reliability_lab.models import Answer, Citation, RetrievedChunk
 
 _SENSITIVE_TERMS = {"admin", "credential", "credentials", "key", "password", "secret", "token"}
+_SENSITIVE_ACTION_TERMS = {
+    "display",
+    "dump",
+    "extract",
+    "give",
+    "ignore",
+    "list",
+    "print",
+    "reveal",
+    "return",
+    "share",
+    "show",
+}
 
 
 class DeterministicAnswerComposer:
     def compose(self, question: str, retrieved_chunks: list[RetrievedChunk]) -> Answer:
         useful_chunks = [chunk for chunk in retrieved_chunks if chunk.score > 0]
-        if not useful_chunks or _asks_for_sensitive_information_without_evidence(
-            question,
-            useful_chunks,
-        ):
+        if _asks_for_sensitive_information(question):
+            return Answer(
+                answer=(
+                    "I cannot retrieve or expose sensitive credentials, tokens, keys, "
+                    "or secrets. I can help summarize rotation or incident-response "
+                    "guidance when the corpus contains that policy."
+                ),
+                citations=[],
+                source_coverage=0.0,
+                refused=True,
+            )
+        if not useful_chunks:
             return Answer(
                 answer=(
                     "I do not have evidence in the current corpus to answer that. "
@@ -57,14 +80,14 @@ def _first_sentence(text: str) -> str:
     return normalized
 
 
-def _asks_for_sensitive_information_without_evidence(
-    question: str,
-    chunks: list[RetrievedChunk],
-) -> bool:
-    question_terms = set(question.lower().split())
+def _asks_for_sensitive_information(question: str) -> bool:
+    question_terms = set(re.findall(r"[a-z0-9_]+", question.lower()))
     requested_sensitive_terms = question_terms & _SENSITIVE_TERMS
     if not requested_sensitive_terms:
         return False
 
-    evidence_text = " ".join(chunk.text.lower() for chunk in chunks)
-    return not any(term in evidence_text for term in requested_sensitive_terms)
+    asks_to_extract = bool(question_terms & _SENSITIVE_ACTION_TERMS)
+    asks_for_named_secret = "admin" in question_terms and bool(
+        requested_sensitive_terms - {"admin"}
+    )
+    return asks_to_extract or asks_for_named_secret

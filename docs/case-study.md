@@ -33,7 +33,7 @@ The eval suite checks four behaviors:
 - rollback questions cite model-release evidence
 - out-of-corpus questions refuse
 - monitoring questions cite latency evidence
-- sensitive requests refuse without explicit evidence
+- secret-extraction requests refuse instead of exposing credentials or tokens
 
 ## Local Results
 

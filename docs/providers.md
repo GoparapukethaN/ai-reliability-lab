@@ -33,6 +33,11 @@ The provider receives the question and retrieved evidence. It must still return 
 the same answer contract: answer text, citations, refusal state, confidence, warnings,
 latency, and estimated cost.
 
+Provider answers only receive citation credit for explicit evidence markers such as
+`[C1]` or `[C2]` that map to retrieved chunks in the prompt. Missing markers produce a
+`missing_citation_markers` warning. Markers that do not map to retrieved evidence produce
+an `unsupported_citation_markers` warning and are not counted as citations.
+
 ## Ollama Provider
 
 The Ollama provider is optional. It is enabled when `OLLAMA_BASE_URL` is set.
@@ -74,4 +79,5 @@ Dashboard:
 
 Provider quality is only one part of reliability. I want the surrounding system to keep
 working even when providers change: same retrieval path, same eval cases, same traces,
-same citation expectations, and same dashboard metrics.
+same citation expectations, and same dashboard metrics. The citation parser is deliberately
+strict so an optional provider cannot get grounding credit from evidence it did not mark.

@@ -13,13 +13,16 @@ make verify
 Result:
 
 - Ruff check: clean
-- Pytest: 25 passed
+- Pytest: 28 passed
 - Frontend typecheck: passed
 - Frontend production build: passed
 - CLI smoke test: ingest, query, compare, providers, traces, eval, and metrics completed
-  against a temporary database
-- Provider adapter tests cover mocked OpenAI/Ollama responses and provider errors.
+  against a temporary database and temporary eval report directory
+- Provider adapter tests cover mocked OpenAI/Ollama responses, provider errors, missing
+  citation markers, and unsupported citation markers.
 - Upload tests cover Markdown, PDF text extraction, and empty-PDF rejection.
+- Safety tests cover secret-extraction refusal even when retrieved evidence contains a
+  matching secret-like value.
 
 Tracked proof:
 

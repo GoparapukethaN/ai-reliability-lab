@@ -14,18 +14,21 @@ Key output:
 
 ```text
 All checks passed!
-.........................                                                [100%]
-25 passed in 0.42s
-Compiled successfully in 1152ms
-Generating static pages using 4 workers (3/3) in 175ms
+............................                                             [100%]
+28 passed in 0.48s
+Compiled successfully in 1613ms
+Generating static pages using 4 workers (3/3) in 207ms
 local verification passed
 ```
 
 The gate covers Ruff, pytest, frontend typecheck, frontend production build, CLI smoke
-commands, and the local deterministic eval path.
+commands, and the local deterministic eval path against a temporary database and
+temporary report directory.
 
 The Python tests now include mocked OpenAI/Ollama provider adapters, provider error
-handling, Markdown upload, PDF upload, and empty-PDF rejection coverage.
+handling, strict citation-marker parsing, unsupported citation-marker warnings,
+Markdown upload, PDF upload, empty-PDF rejection coverage, and secret-extraction refusal
+when retrieved evidence contains a secret-like value.
 
 ## Compose Check
 

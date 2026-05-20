@@ -47,7 +47,7 @@ The current eval set is small, but it already catches the mistakes I care about 
 - answering a rollback question without model-registry evidence
 - answering an out-of-corpus question instead of refusing
 - missing the p95 latency evidence in the monitoring runbook
-- responding to a sensitive request without explicit corpus evidence
+- responding to a secret-extraction request instead of refusing
 
 That is not a complete quality system. It is a starting gate.
 
@@ -71,4 +71,3 @@ about how polished an answer sounds, I want to know what evidence it used, what 
 when evidence was missing, and whether I can detect regressions when I change the system.
 
 That is why this project starts with evals before a stronger LLM provider.
-

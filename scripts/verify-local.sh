@@ -2,6 +2,13 @@
 set -euo pipefail
 
 db_path="${TMPDIR:-/tmp}/ai-reliability-lab-verify.db"
+report_dir="$(mktemp -d "${TMPDIR:-/tmp}/ai-reliability-lab-reports.XXXXXX")"
+
+cleanup() {
+  rm -f "$db_path"
+  rm -rf "$report_dir"
+}
+trap cleanup EXIT
 rm -f "$db_path"
 
 if [[ -x ".venv/bin/python" ]]; then
@@ -30,7 +37,8 @@ fi
   >/tmp/ai-reliability-lab-providers.json
 "$python_cmd" -m ai_reliability_lab.cli --database-path "$db_path" traces \
   >/tmp/ai-reliability-lab-traces.json
-"$python_cmd" -m ai_reliability_lab.cli --database-path "$db_path" eval --format markdown \
+"$python_cmd" -m ai_reliability_lab.cli --database-path "$db_path" --report-dir "$report_dir" \
+  eval --format markdown \
   >/tmp/ai-reliability-lab-eval.md
 "$python_cmd" -m ai_reliability_lab.cli --database-path "$db_path" metrics \
   >/tmp/ai-reliability-lab-metrics.json

@@ -82,7 +82,7 @@ def _run_case(
             answer=answer.answer,
             matched_sources=matched_sources,
             missing_terms=[],
-            reason="refused without corpus evidence" if passed else "expected refusal",
+            reason="expected refusal satisfied" if passed else "expected refusal",
             latency_ms=answer.latency_ms,
             source_coverage=answer.source_coverage,
             estimated_cost_usd=answer.estimated_cost_usd,

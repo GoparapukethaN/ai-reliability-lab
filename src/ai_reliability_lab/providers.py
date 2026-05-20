@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 from abc import ABC, abstractmethod
 from time import perf_counter
 from urllib.error import URLError
@@ -8,7 +9,7 @@ from urllib.request import Request, urlopen
 
 from ai_reliability_lab.answering import DeterministicAnswerComposer
 from ai_reliability_lab.config import Settings
-from ai_reliability_lab.models import ProviderAnswer, ProviderInfo, RetrievedChunk
+from ai_reliability_lab.models import Citation, ProviderAnswer, ProviderInfo, RetrievedChunk
 
 
 class ProviderError(RuntimeError):
@@ -94,18 +95,20 @@ class OpenAIProvider(AnswerProvider):
         )
         answer_text = _extract_openai_text(response)
         latency_ms = round((perf_counter() - started) * 1000, 2)
-        citations = DeterministicAnswerComposer().compose(question, retrieved_chunks).citations
+        citations = _citations_from_markers(answer_text, retrieved_chunks)
+        warnings = _grounding_warnings(answer_text, retrieved_chunks, citations)
+        source_coverage = _citation_source_coverage(citations)
         return ProviderAnswer(
             provider=self.id,
             model=self.settings.openai_model,
             answer=answer_text,
             citations=citations,
-            source_coverage=_source_coverage(retrieved_chunks),
+            source_coverage=source_coverage,
             refused=not citations,
             latency_ms=latency_ms,
             estimated_cost_usd=_estimate_openai_cost(response),
-            warnings=_grounding_warnings(answer_text, retrieved_chunks),
-            confidence=0.0 if not citations else min(1.0, _source_coverage(retrieved_chunks)),
+            warnings=warnings,
+            confidence=0.0 if not citations else min(1.0, source_coverage),
         )
 
 
@@ -147,18 +150,20 @@ class OllamaProvider(AnswerProvider):
         )
         latency_ms = round((perf_counter() - started) * 1000, 2)
         answer_text = str(response.get("response", "")).strip()
-        citations = DeterministicAnswerComposer().compose(question, retrieved_chunks).citations
+        citations = _citations_from_markers(answer_text, retrieved_chunks)
+        warnings = _grounding_warnings(answer_text, retrieved_chunks, citations)
+        source_coverage = _citation_source_coverage(citations)
         return ProviderAnswer(
             provider=self.id,
             model=self.settings.ollama_model,
             answer=answer_text,
             citations=citations,
-            source_coverage=_source_coverage(retrieved_chunks),
+            source_coverage=source_coverage,
             refused=not citations,
             latency_ms=latency_ms,
             estimated_cost_usd=0.0,
-            warnings=_grounding_warnings(answer_text, retrieved_chunks),
-            confidence=0.0 if not citations else min(1.0, _source_coverage(retrieved_chunks)),
+            warnings=warnings,
+            confidence=0.0 if not citations else min(1.0, source_coverage),
         )
 
 
@@ -210,19 +215,54 @@ def _grounded_prompt(question: str, retrieved_chunks: list[RetrievedChunk]) -> s
     )
 
 
-def _source_coverage(retrieved_chunks: list[RetrievedChunk]) -> float:
-    useful = [chunk for chunk in retrieved_chunks if chunk.score > 0]
-    if not useful:
+def _citations_from_markers(
+    answer_text: str,
+    retrieved_chunks: list[RetrievedChunk],
+) -> list[Citation]:
+    marker_indexes = _citation_marker_indexes(answer_text)
+    citations: list[Citation] = []
+    seen_chunk_ids: set[str] = set()
+    for marker_index in marker_indexes:
+        chunk_index = marker_index - 1
+        if chunk_index < 0 or chunk_index >= len(retrieved_chunks):
+            continue
+        chunk = retrieved_chunks[chunk_index]
+        if chunk.chunk_id in seen_chunk_ids:
+            continue
+        seen_chunk_ids.add(chunk.chunk_id)
+        citations.append(
+            Citation(source=chunk.source, heading=chunk.heading, chunk_id=chunk.chunk_id)
+        )
+    return citations
+
+
+def _citation_marker_indexes(answer_text: str) -> list[int]:
+    indexes: list[int] = []
+    for raw in re.findall(r"\[C(\d+)\]", answer_text):
+        indexes.append(int(raw))
+    return indexes
+
+
+def _citation_source_coverage(citations: list[Citation]) -> float:
+    if not citations:
         return 0.0
-    return round(len({chunk.source for chunk in useful}) / len(useful), 3)
+    return round(len({citation.source for citation in citations}) / len(citations), 3)
 
 
-def _grounding_warnings(answer_text: str, retrieved_chunks: list[RetrievedChunk]) -> list[str]:
+def _grounding_warnings(
+    answer_text: str,
+    retrieved_chunks: list[RetrievedChunk],
+    citations: list[Citation],
+) -> list[str]:
     warnings: list[str] = []
-    if retrieved_chunks and "[C" not in answer_text:
-        warnings.append("missing_citation_markers")
     if not retrieved_chunks:
         warnings.append("no_retrieved_evidence")
+        return warnings
+    marker_indexes = _citation_marker_indexes(answer_text)
+    if not marker_indexes:
+        warnings.append("missing_citation_markers")
+    elif any(index < 1 or index > len(retrieved_chunks) for index in marker_indexes):
+        warnings.append("unsupported_citation_markers")
     return warnings
 
 

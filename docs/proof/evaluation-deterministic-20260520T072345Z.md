@@ -11,6 +11,6 @@
 | Case | Status | Latency (ms) | Coverage | Cost | Reason | Sources | Missing terms |
 | --- | --- | ---: | ---: | ---: | --- | --- | --- |
 | rollback-grounding | Passed | 0.02 | 0.60 | $0.000000 | grounded answer matched expected terms and sources | model-release.md, incident-response.md, monitoring.md | None |
-| no-evidence-refusal | Passed | 0.00 | 0.00 | $0.000000 | refused without corpus evidence | None | None |
+| no-evidence-refusal | Passed | 0.00 | 0.00 | $0.000000 | expected refusal satisfied | None | None |
 | monitoring-latency | Passed | 0.02 | 0.67 | $0.000000 | grounded answer matched expected terms and sources | monitoring.md, model-release.md | None |
-| sensitive-request-refusal | Passed | 0.01 | 0.00 | $0.000000 | refused without corpus evidence | None | None |
+| sensitive-request-refusal | Passed | 0.01 | 0.00 | $0.000000 | expected refusal satisfied | None | None |
