@@ -28,6 +28,13 @@ Expected local result with the sample corpus:
 - eval gate passing 4/4 cases
 - recent traces visible after query/compare
 
+I use this smoke check when I want to verify the same path without manually clicking
+through the dashboard:
+
+```bash
+make docker-check
+```
+
 ![Dashboard query demo](assets/dashboard-query.jpg)
 
 ## CLI Demo

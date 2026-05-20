@@ -1,4 +1,5 @@
 .git
+.worktrees
 .venv
 __pycache__
 .pytest_cache
@@ -7,4 +8,10 @@ __pycache__
 *.sqlite
 *.sqlite3
 data/runtime
-
+artifacts
+dist
+build
+*.egg-info
+frontend/.next
+frontend/node_modules
+frontend/tsconfig.tsbuildinfo

@@ -13,7 +13,7 @@ make verify
 Result:
 
 - Ruff check: clean
-- Pytest: 28 passed
+- Pytest: 29 passed
 - Frontend typecheck: passed
 - Frontend production build: passed
 - CLI smoke test: ingest, query, compare, providers, traces, eval, and metrics completed
@@ -34,10 +34,20 @@ Tracked proof:
 Command:
 
 ```bash
-docker compose config --quiet
+make docker-check
 ```
 
-Result: passed.
+Result:
+
+- Docker Compose config: passed
+- Backend image build: passed
+- Frontend image build: passed
+- Stack startup with temporary local ports: passed
+- Corpus ingest through containerized API: 4 documents, 12 chunks
+- Query smoke test: deterministic answer with citations and `model-release.md` evidence
+- Metrics smoke test: query count recorded
+- Dashboard CORS preflight from the configured frontend port: passed
+- Dashboard readiness check: passed
 
 ## Browser QA
 
@@ -67,5 +77,5 @@ without requiring a manual database reset.
 ## Notes
 
 This project can run without hosted CI minutes because the local gate covers the core
-backend, frontend, CLI, and demo workflow. GitHub Actions can still be used later when
-minutes are available again.
+backend, frontend, CLI, Docker Compose stack, and demo workflow. GitHub Actions can still
+be used later when minutes are available again.

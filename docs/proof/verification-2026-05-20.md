@@ -14,10 +14,10 @@ Key output:
 
 ```text
 All checks passed!
-............................                                             [100%]
-28 passed in 0.48s
-Compiled successfully in 1613ms
-Generating static pages using 4 workers (3/3) in 207ms
+.............................                                            [100%]
+29 passed in 0.74s
+Compiled successfully in 1641ms
+Generating static pages using 4 workers (3/3) in 214ms
 local verification passed
 ```
 
@@ -30,15 +30,27 @@ handling, strict citation-marker parsing, unsupported citation-marker warnings,
 Markdown upload, PDF upload, empty-PDF rejection coverage, and secret-extraction refusal
 when retrieved evidence contains a secret-like value.
 
-## Compose Check
+## Docker Compose Smoke
 
 Command:
 
 ```bash
-docker compose config --quiet
+make docker-check
 ```
 
-Result: exited successfully with no output.
+Key output:
+
+```text
+Image ai-reliability-lab-verify-18080-13080-56687-frontend Built
+Image ai-reliability-lab-verify-18080-13080-56687-backend Built
+Container ai-reliability-lab-verify-18080-13080-56687-backend-1 Healthy
+docker compose verification passed
+```
+
+The Docker smoke builds both images, starts the stack on temporary local ports, ingests
+the sample corpus through the containerized API, checks a cited rollback query, verifies
+metrics persistence, checks the configured dashboard CORS origin, and confirms the
+dashboard serves.
 
 ## Browser Smoke
 

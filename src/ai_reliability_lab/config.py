@@ -16,6 +16,7 @@ class Settings:
     ollama_base_url: str = ""
     ollama_model: str = "llama3.1"
     eval_report_dir: Path = Path("artifacts/reports")
+    allowed_origins: tuple[str, ...] = ("http://localhost:3000", "http://127.0.0.1:3000")
 
     @classmethod
     def from_env(cls) -> Settings:
@@ -29,4 +30,12 @@ class Settings:
             ollama_base_url=os.getenv("OLLAMA_BASE_URL", ""),
             ollama_model=os.getenv("OLLAMA_MODEL", cls.ollama_model),
             eval_report_dir=Path(os.getenv("LAB_EVAL_REPORT_DIR", cls.eval_report_dir)),
+            allowed_origins=_parse_allowed_origins(
+                os.getenv("LAB_ALLOWED_ORIGINS", ",".join(cls.allowed_origins))
+            ),
         )
+
+
+def _parse_allowed_origins(value: str) -> tuple[str, ...]:
+    origins = tuple(origin.strip() for origin in value.split(",") if origin.strip())
+    return origins or Settings.allowed_origins

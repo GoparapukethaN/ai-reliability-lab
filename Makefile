@@ -1,6 +1,6 @@
 PYTHON ?= python3
 
-.PHONY: install test lint frontend-install frontend-typecheck frontend-build verify run ingest eval metrics
+.PHONY: install test lint frontend-install frontend-typecheck frontend-build verify docker-check run ingest eval metrics
 
 install:
 	$(PYTHON) -m pip install -e ".[dev]"
@@ -22,6 +22,9 @@ frontend-build:
 
 verify:
 	./scripts/verify-local.sh
+
+docker-check:
+	./scripts/verify-docker.sh
 
 run:
 	uvicorn ai_reliability_lab.app:app --reload

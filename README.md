@@ -132,6 +132,13 @@ database:
 make verify
 ```
 
+The Docker gate builds and starts the backend/dashboard stack on disposable local ports,
+then checks ingestion, query citations, metrics, CORS, and dashboard readiness:
+
+```bash
+make docker-check
+```
+
 Latest local verification details are in [docs/verification.md](docs/verification.md).
 
 ## Interview Notes
