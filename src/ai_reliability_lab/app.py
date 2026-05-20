@@ -4,6 +4,7 @@ from time import perf_counter
 from typing import Annotated
 
 from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 from ai_reliability_lab.config import Settings
@@ -33,6 +34,16 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     retriever = Retriever(store)
     provider_router = ProviderRouter.from_settings(resolved_settings)
     app = FastAPI(title="AI Reliability Lab", version="0.1.0")
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=[
+            "http://localhost:3000",
+            "http://127.0.0.1:3000",
+        ],
+        allow_credentials=False,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
     @app.get("/health")
     def health() -> dict[str, object]:

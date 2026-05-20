@@ -1,6 +1,6 @@
 PYTHON ?= python3
 
-.PHONY: install test lint verify run ingest eval metrics
+.PHONY: install test lint frontend-install frontend-typecheck frontend-build verify run ingest eval metrics
 
 install:
 	$(PYTHON) -m pip install -e ".[dev]"
@@ -10,6 +10,15 @@ test:
 
 lint:
 	$(PYTHON) -m ruff check .
+
+frontend-install:
+	cd frontend && npm install
+
+frontend-typecheck:
+	cd frontend && npm run typecheck
+
+frontend-build:
+	cd frontend && npm run build
 
 verify:
 	./scripts/verify-local.sh

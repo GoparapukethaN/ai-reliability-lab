@@ -13,6 +13,11 @@ fi
 "$python_cmd" -m ruff check .
 "$python_cmd" -m pytest
 
+if [[ -f "frontend/package.json" ]]; then
+  (cd frontend && npm run typecheck)
+  (cd frontend && npm run build)
+fi
+
 "$python_cmd" -m ai_reliability_lab.cli --database-path "$db_path" ingest \
   >/tmp/ai-reliability-lab-ingest.json
 "$python_cmd" -m ai_reliability_lab.cli --database-path "$db_path" query \

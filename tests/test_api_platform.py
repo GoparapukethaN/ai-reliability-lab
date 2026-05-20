@@ -58,6 +58,23 @@ def test_api_uploads_text_document_into_corpus(tmp_path: Path) -> None:
     assert documents[0]["source"] == "uploaded.md"
 
 
+def test_api_allows_local_dashboard_cors(tmp_path: Path) -> None:
+    client = TestClient(
+        create_app(Settings(corpus_dir=tmp_path / "corpus", database_path=tmp_path / "lab.db"))
+    )
+
+    response = client.options(
+        "/health",
+        headers={
+            "Origin": "http://localhost:3000",
+            "Access-Control-Request-Method": "GET",
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.headers["access-control-allow-origin"] == "http://localhost:3000"
+
+
 def test_eval_run_writes_report_artifacts(tmp_path: Path) -> None:
     corpus = tmp_path / "corpus"
     corpus.mkdir()

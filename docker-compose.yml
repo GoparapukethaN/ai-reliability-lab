@@ -1,0 +1,37 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      LAB_CORPUS_DIR: /app/data/corpus
+      LAB_DATABASE_PATH: /app/data/runtime/lab.db
+      LAB_EVAL_REPORT_DIR: /app/artifacts/reports
+      LAB_DEFAULT_PROVIDER: deterministic
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4.1-mini}
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL:-https://api.openai.com/v1}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3.1}
+    ports:
+      - "8000:8000"
+    volumes:
+      - ai_reliability_data:/app/data/runtime
+      - ai_reliability_reports:/app/artifacts/reports
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+      args:
+        NEXT_PUBLIC_API_BASE_URL: http://localhost:8000
+    depends_on:
+      - backend
+    environment:
+      NEXT_PUBLIC_API_BASE_URL: http://localhost:8000
+    ports:
+      - "3000:3000"
+
+volumes:
+  ai_reliability_data:
+  ai_reliability_reports:
