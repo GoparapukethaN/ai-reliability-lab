@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from ai_reliability_lab.answering import DeterministicAnswerComposer
 from ai_reliability_lab.models import EvalCase, EvalReport, EvalResult
+from ai_reliability_lab.providers import ProviderRouter
 from ai_reliability_lab.retrieval import Retriever
 
 
@@ -39,25 +39,30 @@ def default_eval_cases() -> list[EvalCase]:
 def run_evaluation(
     cases: list[EvalCase],
     retriever: Retriever,
-    composer: DeterministicAnswerComposer,
+    provider_router: ProviderRouter,
+    provider_id: str = "deterministic",
 ) -> EvalReport:
-    results = [_run_case(case, retriever, composer) for case in cases]
+    if not isinstance(provider_router, ProviderRouter):
+        provider_router = ProviderRouter.from_settings()
+    results = [_run_case(case, retriever, provider_router, provider_id) for case in cases]
     passed = sum(1 for result in results if result.passed)
     return EvalReport(
         total=len(results),
         passed=passed,
         failed=len(results) - passed,
         results=results,
+        provider=provider_id,
     )
 
 
 def _run_case(
     case: EvalCase,
     retriever: Retriever,
-    composer: DeterministicAnswerComposer,
+    provider_router: ProviderRouter,
+    provider_id: str,
 ) -> EvalResult:
     retrieved = retriever.search(case.question)
-    answer = composer.compose(case.question, retrieved)
+    answer = provider_router.answer(case.question, retrieved, provider_id=provider_id)
     answer_text = answer.answer.lower()
     matched_sources = [citation.source for citation in answer.citations]
 
