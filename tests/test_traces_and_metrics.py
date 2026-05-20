@@ -1,3 +1,4 @@
+import sqlite3
 from pathlib import Path
 
 from ai_reliability_lab.models import ProviderAnswer, RetrievedChunk
@@ -66,3 +67,32 @@ def test_store_lists_recent_traces(tmp_path: Path) -> None:
 
     assert traces[0].trace_id == trace_id
     assert traces[0].refused is True
+
+
+def test_store_migrates_existing_eval_runs_table(tmp_path: Path) -> None:
+    database_path = tmp_path / "lab.db"
+    with sqlite3.connect(database_path) as connection:
+        connection.execute(
+            """
+            CREATE TABLE eval_runs (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                total INTEGER NOT NULL,
+                passed INTEGER NOT NULL,
+                failed INTEGER NOT NULL,
+                report_json TEXT NOT NULL,
+                created_at TEXT NOT NULL
+            )
+            """
+        )
+
+    store = SQLiteStore(database_path)
+    store.record_eval(
+        total=1,
+        passed=1,
+        failed=0,
+        report={"results": [{"passed": True}]},
+        run_id="eval-test",
+        provider="deterministic",
+    )
+
+    assert store.metrics_summary()["eval_runs"] == 1

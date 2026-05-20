@@ -1,26 +1,39 @@
 # Roadmap
 
-This is the honest next-step list I would use if I kept developing the lab.
+This is the honest next-step list I would use if I kept building the platform.
 
-## Near Term
+## Reliability
 
-- Add an optional hosted or local-model provider behind the existing answer composer
-  interface.
-- Add embedding-based retrieval and compare it against the current lexical baseline.
-- Save eval reports as Markdown artifacts so changes are easier to review in pull
-  requests.
-- Add a lightweight dashboard for query logs, retrieved chunks, and eval history.
+- Add retrieval-only evals so ranking regressions are visible before answer generation.
+- Add prompt-injection evals with source-conflict cases.
+- Track per-case eval history and trend lines.
+- Add thresholds for pass rate, refusal rate, and source coverage.
+- Add failure drilldowns from the dashboard to the exact trace and retrieved chunks.
 
-## MLOps Extensions
+## Retrieval
 
-- Add model/provider configuration with environment-based secrets.
-- Add Docker Compose with persistent SQLite storage.
-- Add release-style regression gates for eval pass rate.
-- Add latency and cost tracking once a real LLM provider is enabled.
+- Add deterministic embeddings for a keyless vector baseline.
+- Compare lexical, vector, and hybrid retrieval against the same eval set.
+- Add a reranker interface and measure whether it improves citation coverage.
+- Add chunking experiments for max tokens, overlap, and heading strategy.
 
-## AI/ML Learning Extensions
+## Providers
 
-- Add reranking and measure whether it improves evidence selection.
-- Add chunking experiments with different max lengths and overlap.
-- Add prompt-injection and unsupported-question eval cases.
-- Add model cards for any local or hosted model used later.
+- Expand OpenAI support beyond the current optional Responses API adapter.
+- Add streaming response support.
+- Add Ollama health checks and model discovery.
+- Add provider-specific cost and latency summaries.
+- Add provider comparison reports over a fixed eval set.
+
+## Operations
+
+- Add a small monitoring export for Prometheus-style metrics.
+- Add a dashboard report view for saved Markdown/JSON eval artifacts.
+- Add a reset/seed command for local demo databases.
+- Add deployment notes for a single-machine VM or container host.
+
+## Documentation
+
+- Add screenshots after the public repo is ready.
+- Add a short architecture video script.
+- Add a deeper write-up on eval design before adding LLM providers.

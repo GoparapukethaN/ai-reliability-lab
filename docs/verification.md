@@ -2,6 +2,8 @@
 
 Last local verification: 2026-05-20
 
+## Automated Local Gate
+
 Command:
 
 ```bash
@@ -11,8 +13,48 @@ make verify
 Result:
 
 - Ruff check: clean
-- Pytest: 8 passed
-- CLI smoke: ingest, query, eval, and metrics completed against a temporary database
+- Pytest: 19 passed
+- Frontend typecheck: passed
+- Frontend production build: passed
+- CLI smoke test: ingest, query, compare, providers, traces, eval, and metrics completed
+  against a temporary database
 
-This is a local verification artifact, not a hosted CI badge. The project intentionally
-runs without provider API keys so the core workflow can be checked on a clean machine.
+## Docker Compose Check
+
+Command:
+
+```bash
+docker compose config --quiet
+```
+
+Result: passed.
+
+## Browser QA
+
+Local services:
+
+- Backend: `http://127.0.0.1:8000`
+- Dashboard: `http://127.0.0.1:3000`
+
+Verified in the dashboard:
+
+- Corpus ingests to 4 documents and 12 chunks.
+- Query for rollback returns a grounded answer, citations, retrieved evidence, trace id,
+  provider, coverage, latency, and estimated cost.
+- Provider comparison returns the deterministic provider result.
+- Eval gate runs successfully and passes 4/4 cases.
+- Metrics update after query, compare, and eval runs.
+- Recent traces are visible.
+- Long provider/trace values fit cleanly in dashboard metric cards.
+
+## Migration Check
+
+I also tested the SQLite upgrade path for an existing `eval_runs` table created before
+provider/run id fields existed. The store now migrates that shape and records eval runs
+without requiring a manual database reset.
+
+## Notes
+
+This project can run without hosted CI minutes because the local gate covers the core
+backend, frontend, CLI, and demo workflow. GitHub Actions can still be used later when
+minutes are available again.

@@ -94,6 +94,14 @@ class SQLiteStore:
                 );
                 """
             )
+            self._ensure_columns(
+                connection,
+                "eval_runs",
+                {
+                    "run_id": "TEXT NOT NULL DEFAULT ''",
+                    "provider": "TEXT NOT NULL DEFAULT 'deterministic'",
+                },
+            )
 
     def replace_document(self, source: str, checksum: str, chunks: Iterable[Chunk]) -> None:
         chunk_list = list(chunks)
@@ -494,6 +502,20 @@ class SQLiteStore:
         connection = sqlite3.connect(self.database_path)
         connection.row_factory = sqlite3.Row
         return connection
+
+    @staticmethod
+    def _ensure_columns(
+        connection: sqlite3.Connection,
+        table: str,
+        columns: dict[str, str],
+    ) -> None:
+        existing = {
+            row["name"]
+            for row in connection.execute(f"PRAGMA table_info({table})").fetchall()
+        }
+        for column, definition in columns.items():
+            if column not in existing:
+                connection.execute(f"ALTER TABLE {table} ADD COLUMN {column} {definition}")
 
 
 def _now() -> str:

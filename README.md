@@ -1,133 +1,158 @@
-# AI Reliability Lab
+# AI Reliability Platform
 
-I built this as a small reliability-focused lab for testing how a RAG system behaves after
-it moves past the demo stage. The corpus is MLOps documentation: release runbooks,
-monitoring notes, incident response, and evaluation guidance.
+I built this project to understand how I would move a RAG or agent workflow from a
+notebook-style demo into a measurable system. The platform ingests MLOps runbooks,
+retrieves evidence, answers with citations, compares answer providers, runs regression
+evals, and exposes traces and metrics through both an API and a dashboard.
 
-The goal is not to claim this is a full enterprise platform. The goal is to show the
-engineering pieces I care about in real AI systems: ingestion, retrieval, grounded
-answers, evals, observability, repeatable setup, and clear failure modes.
+The default path is completely local and keyless. Optional OpenAI and Ollama providers
+can be enabled when I want to compare a hosted or local model against the deterministic
+baseline.
 
 ## What It Does
 
-- Ingests local Markdown runbooks into SQLite.
-- Chunks documents with source and heading metadata.
-- Retrieves relevant context with deterministic lexical scoring.
-- Answers questions with citations from the retrieved chunks.
-- Refuses when the corpus does not contain enough evidence.
-- Runs a small evaluation suite for grounding and refusal behavior.
-- Records query latency, retrieved sources, eval runs, and recent failures.
-- Runs locally without an API key.
+- Ingests Markdown, text, and PDF documents into a SQLite-backed corpus.
+- Chunks documents with source, heading, ordinal, checksum, and token metadata.
+- Retrieves relevant evidence with deterministic lexical scoring.
+- Answers questions through a provider interface with citations and refusal behavior.
+- Compares enabled providers on the same prompt and evidence set.
+- Stores query traces, retrieved chunks, citations, latency, refusals, and cost estimates.
+- Runs a grounding and refusal eval suite and saves Markdown/JSON report artifacts.
+- Provides a FastAPI backend, a Next.js dashboard, Docker Compose, CLI workflows, tests,
+  linting, and local verification.
 
-## Why This Shape
+## Dashboard
 
-Most RAG projects stop at "chat with docs." I wanted this to look closer to the way I
-think about MLOps work:
+The dashboard is designed as an operational console, not a landing page. It gives me the
+core workflow in one place:
 
-- Can I reproduce it from a clean machine?
-- Can I test the behavior without a paid API?
-- Can I see what evidence the answer used?
-- Can I run regression evals after changing retrieval or prompts?
-- Can I explain what failed and what I would improve next?
+- Ingest the sample corpus or upload a PDF/TXT/Markdown document.
+- Ask a question and inspect the answer, citations, retrieved chunks, trace id, coverage,
+  provider, latency, and estimated cost.
+- Compare enabled providers.
+- Run the eval gate and review pass/fail cases.
+- Watch query counts, eval runs, average latency, refusals, and recent traces.
 
-## Architecture
+![Dashboard showing a grounded rollback query with metrics and retrieved evidence](docs/assets/dashboard-query.jpg)
 
-```mermaid
-flowchart LR
-    A["Markdown runbooks"] --> B["Ingestion"]
-    B --> C["Chunking + metadata"]
-    C --> D["SQLite store"]
-    D --> E["Retriever"]
-    E --> F["Deterministic answer composer"]
-    F --> G["Cited answer"]
-    E --> H["Evaluation runner"]
-    F --> H
-    H --> I["Eval history + metrics"]
+```bash
+docker compose up --build
 ```
 
-## Quickstart
+Then open `http://localhost:3000`.
+
+## Local Quickstart
 
 ```bash
 python3 -m venv .venv
 . .venv/bin/activate
 python -m pip install -e ".[dev]"
-pytest
+make verify
+```
+
+Run the API and dashboard without Docker:
+
+```bash
 uvicorn ai_reliability_lab.app:app --reload
 ```
 
 In another terminal:
 
 ```bash
-curl -X POST http://127.0.0.1:8000/ingest
-curl -X POST http://127.0.0.1:8000/query \
-  -H "Content-Type: application/json" \
-  -d '{"question":"How should I roll back a model release?","limit":3}'
-curl -X POST http://127.0.0.1:8000/eval/run
-curl http://127.0.0.1:8000/metrics/summary
+cd frontend
+npm install
+npm run dev
 ```
 
-## CLI Demo
-
-The same workflow can run from the terminal:
+## CLI Workflow
 
 ```bash
 ai-lab ingest
 ai-lab query "How should I roll back a model release?"
+ai-lab compare "How should I roll back a model release?"
 ai-lab eval --format markdown
+ai-lab providers
+ai-lab traces
 ai-lab metrics
 ```
 
-You can point the lab at another corpus or database without changing code:
+Point the same workflow at a different corpus or database:
 
 ```bash
 LAB_CORPUS_DIR=data/corpus LAB_DATABASE_PATH=data/runtime/lab.db ai-lab ingest
 ```
 
-## Local Verification
+## API
 
-Hosted CI is not required for this repo. The local verification path runs lint, tests,
-and a CLI smoke test against a temporary database:
+- `GET /health` reports service, database, document, and chunk status.
+- `GET /providers` lists deterministic, OpenAI, and Ollama provider availability.
+- `GET /documents` lists indexed documents and chunk counts.
+- `POST /documents/upload` indexes a Markdown, text, or PDF upload.
+- `POST /ingest` ingests the configured corpus.
+- `POST /query` returns answer, citations, retrieved chunks, trace id, latency, cost, and
+  diagnostics.
+- `POST /query/compare` runs the same question across enabled providers.
+- `POST /eval/run` runs the evaluation set and stores report artifacts.
+- `POST /eval/compare` compares eval results across providers.
+- `GET /traces` and `GET /traces/{trace_id}` expose query trace history.
+- `GET /reports` lists saved eval reports.
+- `GET /metrics/summary` returns query/eval counts, average latency, refusals, provider
+  usage, cost estimate, and recent failures.
+
+## Architecture
+
+```mermaid
+flowchart LR
+    A["Docs: Markdown, TXT, PDF"] --> B["Ingestion"]
+    B --> C["Chunking + metadata"]
+    C --> D["SQLite store"]
+    D --> E["Retriever"]
+    E --> F["Provider router"]
+    F --> G["Deterministic local"]
+    F --> H["OpenAI optional"]
+    F --> I["Ollama optional"]
+    G --> J["Cited answer"]
+    H --> J
+    I --> J
+    J --> K["Query traces + citations"]
+    E --> L["Eval runner"]
+    F --> L
+    L --> M["Markdown/JSON reports"]
+    K --> N["Dashboard + metrics"]
+    M --> N
+```
+
+## Verification
+
+Hosted CI is useful, but I do not need it to prove the core workflow. The local gate runs
+backend linting, tests, frontend typecheck/build, and CLI smoke tests against a temporary
+database:
 
 ```bash
 make verify
 ```
 
-Latest local verification: see [docs/verification.md](docs/verification.md).
-
-## Docker
-
-```bash
-docker build -t ai-reliability-lab .
-docker run --rm -p 8000:8000 ai-reliability-lab
-```
-
-## API
-
-- `GET /health` reports service, database, document, and chunk status.
-- `POST /ingest` ingests the local Markdown corpus.
-- `POST /query` returns an answer, citations, retrieved chunks, latency, and diagnostics.
-- `POST /eval/run` runs the grounding/refusal evaluation suite.
-- `GET /metrics/summary` returns query count, eval count, average latency, and recent failures.
+Latest local verification details are in [docs/verification.md](docs/verification.md).
 
 ## Interview Notes
 
-The part I would talk through in an interview is the tradeoff between simple,
-deterministic behavior and production realism. I intentionally started with local
-retrieval and a deterministic answer composer so tests can prove behavior without an
-external model. The provider boundary is where I would add a hosted LLM provider, a local
-model, or a reranker later.
+The main engineering point is that every answer carries evidence and every eval is
+repeatable. I started with a deterministic provider so I can test retrieval, citations,
+refusals, and observability without depending on an external model. The provider boundary
+lets me add real LLMs later without rewriting ingestion, retrieval, tracing, or evals.
 
-The most important design decision is that every answer carries evidence. If retrieval
-does not find evidence, the system refuses instead of filling the gap with a confident
-guess. That is the reliability habit I want in any AI system I own.
+The system is intentionally honest about what it measures: it records local latency,
+provider availability, source coverage, refusal behavior, retrieved evidence, and eval
+pass/fail results. It does not claim production users or adoption.
 
 ## More Detail
 
 - [Architecture](docs/architecture.md)
-- [Case Study](docs/case-study.md)
-- [Demo Walkthrough](docs/demo.md)
+- [Providers](docs/providers.md)
+- [Observability](docs/observability.md)
 - [Evaluation](docs/evaluation.md)
+- [Demo Walkthrough](docs/demo.md)
+- [Case Study](docs/case-study.md)
 - [Interview Guide](docs/interview-guide.md)
-- [Note: What I Learned Building Evals Before Adding an LLM](docs/notes/evals-before-llms.md)
 - [Roadmap](docs/roadmap.md)
 - [Verification](docs/verification.md)
