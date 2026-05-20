@@ -1,6 +1,6 @@
 # AI Reliability Lab
 
-I built this as a small production-style lab for testing how a RAG system behaves after
+I built this as a small reliability-focused lab for testing how a RAG system behaves after
 it moves past the demo stage. The corpus is MLOps documentation: release runbooks,
 monitoring notes, incident response, and evaluation guidance.
 
@@ -92,6 +92,8 @@ and a CLI smoke test against a temporary database:
 make verify
 ```
 
+Latest local verification: see [docs/verification.md](docs/verification.md).
+
 ## Docker
 
 ```bash
@@ -128,3 +130,4 @@ guess. That is the reliability habit I want in any AI system I own.
 - [Interview Guide](docs/interview-guide.md)
 - [Note: What I Learned Building Evals Before Adding an LLM](docs/notes/evals-before-llms.md)
 - [Roadmap](docs/roadmap.md)
+- [Verification](docs/verification.md)
