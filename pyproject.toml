@@ -1,7 +1,7 @@
 [project]
 name = "ai-reliability-lab"
 version = "0.1.0"
-description = "A production-style RAG reliability lab for MLOps documentation."
+description = "A reliability-focused RAG lab for MLOps documentation."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
