@@ -40,3 +40,19 @@ def test_api_query_compare_traces_providers_and_documents(tmp_path: Path) -> Non
 
     traces = client.get("/traces").json()
     assert traces[0]["trace_id"]
+
+
+def test_api_uploads_text_document_into_corpus(tmp_path: Path) -> None:
+    corpus = tmp_path / "corpus"
+    corpus.mkdir()
+    client = TestClient(create_app(Settings(corpus_dir=corpus, database_path=tmp_path / "lab.db")))
+
+    response = client.post(
+        "/documents/upload",
+        files={"file": ("uploaded.md", b"# Uploaded\n\nRollback policy uses registry aliases.")},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["documents"] == 1
+    documents = client.get("/documents").json()
+    assert documents[0]["source"] == "uploaded.md"

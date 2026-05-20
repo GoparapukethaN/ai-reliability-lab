@@ -24,6 +24,12 @@ def ingest_directory(corpus_dir: Path, store: SQLiteStore) -> IngestSummary:
     return IngestSummary(documents=len(markdown_files), chunks=total_chunks, sources=sources)
 
 
+def ingest_text(source: str, text: str, store: SQLiteStore) -> IngestSummary:
+    safe_source = Path(source).name or "uploaded.md"
+    chunks = chunk_markdown(text, source=safe_source)
+    store.replace_document(safe_source, checksum=_checksum(text), chunks=chunks)
+    return IngestSummary(documents=1, chunks=len(chunks), sources=[safe_source])
+
+
 def _checksum(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
-

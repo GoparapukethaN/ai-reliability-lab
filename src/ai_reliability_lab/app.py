@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 from time import perf_counter
+from typing import Annotated
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, File, HTTPException, UploadFile
 from pydantic import BaseModel, Field
 
 from ai_reliability_lab.config import Settings
 from ai_reliability_lab.evaluation import default_eval_cases, run_evaluation
-from ai_reliability_lab.ingestion import ingest_directory
+from ai_reliability_lab.ingestion import ingest_directory, ingest_text
 from ai_reliability_lab.providers import ProviderError, ProviderRouter
 from ai_reliability_lab.retrieval import Retriever
 from ai_reliability_lab.storage import SQLiteStore
@@ -53,6 +54,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @app.post("/ingest")
     def ingest() -> dict[str, object]:
         return ingest_directory(resolved_settings.corpus_dir, store).to_dict()
+
+    @app.post("/documents/upload")
+    async def upload_document(file: Annotated[UploadFile, File(...)]) -> dict[str, object]:
+        content = await file.read()
+        text = _decode_upload(file.filename or "uploaded.md", content)
+        return ingest_text(file.filename or "uploaded.md", text, store).to_dict()
 
     @app.post("/query")
     def query(request: QueryRequest) -> dict[str, object]:
@@ -185,3 +192,22 @@ def _answer_payload(
 
 
 app = create_app()
+
+
+def _decode_upload(filename: str, content: bytes) -> str:
+    if filename.lower().endswith(".pdf"):
+        try:
+            from pypdf import PdfReader
+        except ImportError as exc:  # pragma: no cover - dependency is declared
+            raise HTTPException(status_code=400, detail="PDF support is unavailable.") from exc
+        from io import BytesIO
+
+        reader = PdfReader(BytesIO(content))
+        text = "\n\n".join(page.extract_text() or "" for page in reader.pages)
+        if not text.strip():
+            raise HTTPException(status_code=400, detail="No text could be extracted from the PDF.")
+        return text
+    try:
+        return content.decode("utf-8")
+    except UnicodeDecodeError as exc:
+        raise HTTPException(status_code=400, detail="Upload must be UTF-8 text or PDF.") from exc
