@@ -170,5 +170,6 @@ pass/fail results. It does not claim production users or adoption.
 - [Demo Walkthrough](docs/demo.md)
 - [Case Study](docs/case-study.md)
 - [Interview Guide](docs/interview-guide.md)
+- [Architecture Video Script](docs/architecture-video-script.md)
 - [Roadmap](docs/roadmap.md)
 - [Verification](docs/verification.md)
