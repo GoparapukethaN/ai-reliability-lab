@@ -98,6 +98,51 @@ def test_cli_ingests_queries_and_runs_evals(tmp_path: Path, capsys) -> None:
     assert '"total"' in capsys.readouterr().out
 
 
+def test_cli_compares_providers_and_lists_traces(tmp_path: Path, capsys) -> None:
+    corpus_dir = tmp_path / "corpus"
+    _write_corpus(corpus_dir)
+    database_path = tmp_path / "lab.db"
+
+    assert main(
+        [
+            "--corpus-dir",
+            str(corpus_dir),
+            "--database-path",
+            str(database_path),
+            "ingest",
+        ]
+    ) == 0
+    capsys.readouterr()
+
+    compare_code = main(
+        [
+            "--corpus-dir",
+            str(corpus_dir),
+            "--database-path",
+            str(database_path),
+            "compare",
+            "How should I roll back a model?",
+        ]
+    )
+    compare_output = capsys.readouterr().out
+    assert compare_code == 0
+    assert '"provider": "deterministic"' in compare_output
+    assert '"trace_id":' in compare_output
+
+    traces_code = main(
+        [
+            "--corpus-dir",
+            str(corpus_dir),
+            "--database-path",
+            str(database_path),
+            "traces",
+        ]
+    )
+    traces_output = capsys.readouterr().out
+    assert traces_code == 0
+    assert "How should I roll back a model?" in traces_output
+
+
 def test_eval_report_can_be_rendered_as_markdown(tmp_path: Path) -> None:
     corpus_dir = tmp_path / "corpus"
     _write_corpus(corpus_dir)
