@@ -56,3 +56,31 @@ def test_api_uploads_text_document_into_corpus(tmp_path: Path) -> None:
     assert response.json()["documents"] == 1
     documents = client.get("/documents").json()
     assert documents[0]["source"] == "uploaded.md"
+
+
+def test_eval_run_writes_report_artifacts(tmp_path: Path) -> None:
+    corpus = tmp_path / "corpus"
+    corpus.mkdir()
+    (corpus / "model-release.md").write_text(
+        "# Release\n\nRollback uses the model registry and previous stable version.",
+        encoding="utf-8",
+    )
+    (corpus / "monitoring.md").write_text(
+        "# Monitoring\n\nWatch p95 latency and retrieval coverage after deployment.",
+        encoding="utf-8",
+    )
+    settings = Settings(
+        corpus_dir=corpus,
+        database_path=tmp_path / "lab.db",
+        eval_report_dir=tmp_path / "reports",
+    )
+    client = TestClient(create_app(settings))
+    client.post("/ingest")
+
+    response = client.post("/eval/run")
+
+    assert response.status_code == 200
+    reports = client.get("/reports").json()
+    assert reports
+    assert reports[0]["kind"] == "evaluation"
+    assert Path(reports[0]["path"]).exists()

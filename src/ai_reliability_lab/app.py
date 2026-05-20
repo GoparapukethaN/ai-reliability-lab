@@ -10,6 +10,7 @@ from ai_reliability_lab.config import Settings
 from ai_reliability_lab.evaluation import default_eval_cases, run_evaluation
 from ai_reliability_lab.ingestion import ingest_directory, ingest_text
 from ai_reliability_lab.providers import ProviderError, ProviderRouter
+from ai_reliability_lab.reporting import list_report_artifacts, save_eval_report
 from ai_reliability_lab.retrieval import Retriever
 from ai_reliability_lab.storage import SQLiteStore
 
@@ -104,7 +105,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     @app.get("/reports")
     def reports() -> list[dict[str, object]]:
-        return []
+        return [
+            report.to_dict()
+            for report in list_report_artifacts(resolved_settings.eval_report_dir)
+        ]
 
     @app.post("/eval/compare")
     def eval_compare(request: CompareRequest | None = None) -> dict[str, object]:
@@ -140,6 +144,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             report=payload,
             provider=report.provider,
         )
+        save_eval_report(report, resolved_settings.eval_report_dir)
         return payload
 
     @app.get("/metrics/summary")
