@@ -1,6 +1,6 @@
 PYTHON ?= python3
 
-.PHONY: install test lint frontend-install frontend-typecheck frontend-build verify docker-check run ingest eval metrics
+.PHONY: install test lint frontend-install frontend-typecheck frontend-build dashboard-check verify docker-check run ingest eval metrics
 
 install:
 	$(PYTHON) -m pip install -e ".[dev]"
@@ -19,6 +19,9 @@ frontend-typecheck:
 
 frontend-build:
 	cd frontend && npm run build
+
+dashboard-check:
+	cd frontend && npm run qa:dashboard
 
 verify:
 	./scripts/verify-local.sh

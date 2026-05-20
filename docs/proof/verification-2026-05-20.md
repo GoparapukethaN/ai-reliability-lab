@@ -59,12 +59,20 @@ Local services:
 - Backend: `http://127.0.0.1:8000`
 - Dashboard: `http://127.0.0.1:3000`
 
-Checked with Playwright:
+Checked with the tracked Playwright script:
+
+```text
+LAB_DASHBOARD_URL=http://127.0.0.1:13082 npm run qa:dashboard
+desktop dashboard QA passed
+mobile dashboard QA passed
+```
 
 - Page loaded with title `AI Reliability Platform`.
 - `Ingest Corpus` showed 4 documents and 12 chunks.
+- `Run Query` returned cited `model-release.md` evidence.
 - `Run Eval` showed provider, 4/4 passed, 0 failed, average latency, average coverage,
   and estimated cost.
+- Desktop and mobile viewports had no horizontal overflow.
 - Browser console check returned 0 errors and 0 warnings.
 
 ## Eval Artifact

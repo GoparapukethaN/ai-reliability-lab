@@ -68,6 +68,17 @@ Verified in the dashboard:
 - Recent traces are visible.
 - Long provider/trace values fit cleanly in dashboard metric cards.
 
+The dashboard browser QA can be rerun against a live backend/dashboard:
+
+```bash
+cd frontend
+npx playwright install chromium
+LAB_DASHBOARD_URL=http://127.0.0.1:3000 npm run qa:dashboard
+```
+
+The script checks desktop and mobile viewports, console warnings/errors, horizontal
+overflow, corpus ingest, grounded query, cited evidence, and the 4/4 eval gate.
+
 ## Migration Check
 
 I also tested the SQLite upgrade path for an existing `eval_runs` table created before

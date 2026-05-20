@@ -139,6 +139,15 @@ then checks ingestion, query citations, metrics, CORS, and dashboard readiness:
 make docker-check
 ```
 
+When the backend and dashboard are running, the browser QA script drives the dashboard
+workflow on desktop and mobile viewports:
+
+```bash
+cd frontend
+npx playwright install chromium
+LAB_DASHBOARD_URL=http://127.0.0.1:3000 npm run qa:dashboard
+```
+
 Latest local verification details are in [docs/verification.md](docs/verification.md).
 
 ## Interview Notes
