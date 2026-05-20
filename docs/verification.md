@@ -88,5 +88,6 @@ without requiring a manual database reset.
 ## Notes
 
 This project can run without hosted CI minutes because the local gate covers the core
-backend, frontend, CLI, Docker Compose stack, and demo workflow. GitHub Actions can still
-be used later when minutes are available again.
+backend, frontend, and CLI workflow. Docker Compose and dashboard browser QA stay as
+separate checks for machines where those tools are installed. GitHub Actions can still be
+used later when minutes are available again.

@@ -35,11 +35,14 @@ core workflow in one place:
 
 ![Dashboard showing a grounded rollback query with metrics and retrieved evidence](docs/assets/dashboard-query.jpg)
 
+If Docker is installed, start the full stack:
+
 ```bash
 docker compose up --build
 ```
 
-Then open `http://localhost:3000`.
+Then open `http://localhost:3000`. The same backend and dashboard can also run without
+Docker from the local quickstart below.
 
 ## Local Quickstart
 
@@ -132,8 +135,9 @@ database:
 make verify
 ```
 
-The Docker gate builds and starts the backend/dashboard stack on disposable local ports,
-then checks ingestion, query citations, metrics, CORS, and dashboard readiness:
+If Docker is installed, the Docker gate builds and starts the backend/dashboard stack on
+disposable local ports, then checks ingestion, query citations, metrics, CORS, and
+dashboard readiness:
 
 ```bash
 make docker-check
