@@ -9,6 +9,7 @@ htmlcov/
 *.sqlite3
 data/runtime/
 artifacts/
+docs/superpowers/
 frontend/.next/
 frontend/node_modules/
 frontend/out/

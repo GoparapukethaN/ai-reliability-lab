@@ -22,19 +22,25 @@ def format_eval_report_markdown(report: EvalReport) -> str:
     lines = [
         "# Evaluation Report",
         "",
+        f"- Provider: {report.provider}",
         f"- Total: {report.total}",
         f"- Passed: {report.passed}",
         f"- Failed: {report.failed}",
+        f"- Average latency: {report.average_latency_ms:.2f} ms",
+        f"- Average source coverage: {report.average_source_coverage:.2f}",
+        f"- Estimated cost: ${report.estimated_total_cost_usd:.6f}",
         "",
-        "| Case | Status | Reason | Sources | Missing terms |",
-        "| --- | --- | --- | --- | --- |",
+        "| Case | Status | Latency (ms) | Coverage | Cost | Reason | Sources | Missing terms |",
+        "| --- | --- | ---: | ---: | ---: | --- | --- | --- |",
     ]
     for result in report.results:
         status = "Passed" if result.passed else "Failed"
         sources = ", ".join(result.matched_sources) if result.matched_sources else "None"
         missing = ", ".join(result.missing_terms) if result.missing_terms else "None"
         lines.append(
-            f"| {result.case_id} | {status} | {result.reason} | {sources} | {missing} |"
+            f"| {result.case_id} | {status} | {result.latency_ms:.2f} | "
+            f"{result.source_coverage:.2f} | ${result.estimated_cost_usd:.6f} | "
+            f"{result.reason} | {sources} | {missing} |"
         )
     return "\n".join(lines) + "\n"
 

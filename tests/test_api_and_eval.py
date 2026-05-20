@@ -58,6 +58,15 @@ def test_api_ingests_queries_runs_evals_and_reports_metrics(tmp_path: Path) -> N
     eval_payload = eval_response.json()
     assert eval_payload["total"] >= 2
     assert eval_payload["passed"] >= 1
+    assert eval_payload["provider"] == "deterministic"
+    assert eval_payload["average_latency_ms"] >= 0
+    assert eval_payload["average_source_coverage"] >= 0
+    assert eval_payload["estimated_total_cost_usd"] >= 0
+    assert {
+        "latency_ms",
+        "source_coverage",
+        "estimated_cost_usd",
+    } <= set(eval_payload["results"][0])
 
     metrics_response = client.get("/metrics/summary")
     assert metrics_response.status_code == 200
@@ -65,4 +74,3 @@ def test_api_ingests_queries_runs_evals_and_reports_metrics(tmp_path: Path) -> N
     assert metrics["query_count"] >= 1
     assert metrics["eval_runs"] >= 1
     assert metrics["average_latency_ms"] >= 0
-

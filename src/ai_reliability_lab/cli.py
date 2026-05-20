@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+from dataclasses import replace
 from pathlib import Path
 from time import perf_counter
 from typing import Any
@@ -10,7 +11,7 @@ from ai_reliability_lab.config import Settings
 from ai_reliability_lab.evaluation import default_eval_cases, run_evaluation
 from ai_reliability_lab.ingestion import ingest_directory
 from ai_reliability_lab.providers import ProviderRouter
-from ai_reliability_lab.reporting import format_eval_report_markdown
+from ai_reliability_lab.reporting import format_eval_report_markdown, save_eval_report
 from ai_reliability_lab.retrieval import Retriever
 from ai_reliability_lab.storage import SQLiteStore
 
@@ -18,9 +19,11 @@ from ai_reliability_lab.storage import SQLiteStore
 def main(argv: list[str] | None = None) -> int:
     parser = _build_parser()
     args = parser.parse_args(argv)
-    settings = Settings(
+    settings = replace(
+        Settings.from_env(),
         corpus_dir=args.corpus_dir,
         database_path=args.database_path,
+        eval_report_dir=args.report_dir,
     )
     store = SQLiteStore(settings.database_path)
     provider_router = ProviderRouter.from_settings(settings)
@@ -82,6 +85,8 @@ def main(argv: list[str] | None = None) -> int:
             provider_id=args.provider,
         )
         payload = report.to_dict()
+        artifact = save_eval_report(report, settings.eval_report_dir)
+        payload["report_artifact"] = artifact.to_dict()
         store.record_eval(
             total=report.total,
             passed=report.passed,
@@ -111,6 +116,7 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--corpus-dir", type=Path, default=defaults.corpus_dir)
     parser.add_argument("--database-path", type=Path, default=defaults.database_path)
+    parser.add_argument("--report-dir", type=Path, default=defaults.eval_report_dir)
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     subparsers.add_parser("ingest", help="Ingest the configured Markdown corpus.")

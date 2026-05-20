@@ -52,6 +52,14 @@ def run_evaluation(
         failed=len(results) - passed,
         results=results,
         provider=provider_id,
+        average_latency_ms=_average([result.latency_ms for result in results]),
+        average_source_coverage=_average(
+            [result.source_coverage for result in results]
+        ),
+        estimated_total_cost_usd=round(
+            sum(result.estimated_cost_usd for result in results),
+            6,
+        ),
     )
 
 
@@ -64,7 +72,7 @@ def _run_case(
     retrieved = retriever.search(case.question)
     answer = provider_router.answer(case.question, retrieved, provider_id=provider_id)
     answer_text = answer.answer.lower()
-    matched_sources = [citation.source for citation in answer.citations]
+    matched_sources = _unique_sources([citation.source for citation in answer.citations])
 
     if case.expect_refusal:
         passed = answer.refused
@@ -75,6 +83,9 @@ def _run_case(
             matched_sources=matched_sources,
             missing_terms=[],
             reason="refused without corpus evidence" if passed else "expected refusal",
+            latency_ms=answer.latency_ms,
+            source_coverage=answer.source_coverage,
+            estimated_cost_usd=answer.estimated_cost_usd,
         )
 
     missing_terms = [term for term in case.required_terms if term.lower() not in answer_text]
@@ -88,4 +99,17 @@ def _run_case(
         matched_sources=matched_sources,
         missing_terms=missing_terms,
         reason=reason,
+        latency_ms=answer.latency_ms,
+        source_coverage=answer.source_coverage,
+        estimated_cost_usd=answer.estimated_cost_usd,
     )
+
+
+def _average(values: list[float]) -> float:
+    if not values:
+        return 0.0
+    return round(sum(values) / len(values), 2)
+
+
+def _unique_sources(sources: list[str]) -> list[str]:
+    return list(dict.fromkeys(sources))

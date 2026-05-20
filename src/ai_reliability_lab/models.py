@@ -138,6 +138,9 @@ class EvalResult:
     matched_sources: list[str]
     missing_terms: list[str]
     reason: str
+    latency_ms: float = 0.0
+    source_coverage: float = 0.0
+    estimated_cost_usd: float = 0.0
 
     def to_dict(self) -> dict[str, object]:
         return asdict(self)
@@ -150,6 +153,9 @@ class EvalReport:
     failed: int
     results: list[EvalResult]
     provider: str = "deterministic"
+    average_latency_ms: float = 0.0
+    average_source_coverage: float = 0.0
+    estimated_total_cost_usd: float = 0.0
 
     def to_dict(self) -> dict[str, object]:
         return {
@@ -157,5 +163,8 @@ class EvalReport:
             "total": self.total,
             "passed": self.passed,
             "failed": self.failed,
+            "average_latency_ms": self.average_latency_ms,
+            "average_source_coverage": self.average_source_coverage,
+            "estimated_total_cost_usd": self.estimated_total_cost_usd,
             "results": [result.to_dict() for result in self.results],
         }

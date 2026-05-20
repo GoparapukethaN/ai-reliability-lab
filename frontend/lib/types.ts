@@ -68,6 +68,9 @@ export type EvalResult = {
   matched_sources: string[];
   missing_terms: string[];
   reason: string;
+  latency_ms: number;
+  source_coverage: number;
+  estimated_cost_usd: number;
 };
 
 export type EvalReport = {
@@ -75,6 +78,9 @@ export type EvalReport = {
   total: number;
   passed: number;
   failed: number;
+  average_latency_ms: number;
+  average_source_coverage: number;
+  estimated_total_cost_usd: number;
   results: EvalResult[];
 };
 

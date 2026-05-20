@@ -378,7 +378,15 @@ export default function Home() {
             <Metric label="Provider" value={evaluation?.provider ?? provider} />
             <Metric label="Passed" value={evaluation ? `${evaluation.passed}/${evaluation.total}` : "0/0"} />
             <Metric label="Failed" value={evaluation?.failed ?? 0} />
-            <Metric label="Cost" value={`$${metrics?.estimated_cost_usd.toFixed(6) ?? "0.000000"}`} />
+            <Metric label="Avg Latency" value={`${evaluation?.average_latency_ms ?? 0} ms`} />
+            <Metric
+              label="Avg Coverage"
+              value={`${Math.round((evaluation?.average_source_coverage ?? 0) * 100)}%`}
+            />
+            <Metric
+              label="Cost"
+              value={`$${evaluation?.estimated_total_cost_usd.toFixed(6) ?? "0.000000"}`}
+            />
           </div>
 
           {evaluation ? (

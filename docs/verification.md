@@ -13,11 +13,16 @@ make verify
 Result:
 
 - Ruff check: clean
-- Pytest: 19 passed
+- Pytest: 20 passed
 - Frontend typecheck: passed
 - Frontend production build: passed
 - CLI smoke test: ingest, query, compare, providers, traces, eval, and metrics completed
   against a temporary database
+
+Tracked proof:
+
+- [verification-2026-05-20.md](proof/verification-2026-05-20.md)
+- [evaluation-deterministic-20260520T072345Z.md](proof/evaluation-deterministic-20260520T072345Z.md)
 
 ## Docker Compose Check
 
@@ -42,7 +47,8 @@ Verified in the dashboard:
 - Query for rollback returns a grounded answer, citations, retrieved evidence, trace id,
   provider, coverage, latency, and estimated cost.
 - Provider comparison returns the deterministic provider result.
-- Eval gate runs successfully and passes 4/4 cases.
+- Eval gate runs successfully and passes 4/4 cases with provider, average latency,
+  average coverage, and estimated cost visible.
 - Metrics update after query, compare, and eval runs.
 - Recent traces are visible.
 - Long provider/trace values fit cleanly in dashboard metric cards.

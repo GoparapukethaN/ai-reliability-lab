@@ -34,6 +34,6 @@ This is the honest next-step list I would use if I kept building the platform.
 
 ## Documentation
 
-- Add screenshots after the public repo is ready.
+- Add a short video walkthrough and one more dashboard screenshot focused on eval reports.
 - Add a short architecture video script.
 - Add a deeper write-up on eval design before adding LLM providers.

@@ -58,6 +58,7 @@ def test_cli_ingests_queries_and_runs_evals(tmp_path: Path, capsys) -> None:
     corpus_dir = tmp_path / "corpus"
     _write_corpus(corpus_dir)
     database_path = tmp_path / "lab.db"
+    report_dir = tmp_path / "reports"
 
     ingest_code = main(
         [
@@ -91,11 +92,17 @@ def test_cli_ingests_queries_and_runs_evals(tmp_path: Path, capsys) -> None:
             str(corpus_dir),
             "--database-path",
             str(database_path),
+            "--report-dir",
+            str(report_dir),
             "eval",
         ]
     )
     assert eval_code == 0
-    assert '"total"' in capsys.readouterr().out
+    eval_output = capsys.readouterr().out
+    assert '"total"' in eval_output
+    assert '"report_artifact"' in eval_output
+    assert list(report_dir.glob("evaluation-deterministic-*.md"))
+    assert list(report_dir.glob("evaluation-deterministic-*.json"))
 
 
 def test_cli_compares_providers_and_lists_traces(tmp_path: Path, capsys) -> None:
@@ -155,9 +162,28 @@ def test_eval_report_can_be_rendered_as_markdown(tmp_path: Path) -> None:
         Retriever(store),
         DeterministicAnswerComposer(),
     )
+    rollback_result = next(
+        result for result in report.results if result.case_id == "rollback-grounding"
+    )
 
     markdown = format_eval_report_markdown(report)
 
+    assert len(rollback_result.matched_sources) == len(set(rollback_result.matched_sources))
     assert "# Evaluation Report" in markdown
+    assert "Provider: deterministic" in markdown
+    assert "Average latency" in markdown
+    assert "Average source coverage" in markdown
+    assert "Estimated cost" in markdown
     assert "Passed" in markdown
     assert "rollback-grounding" in markdown
+    assert "Latency" in markdown
+    assert "Coverage" in markdown
+
+
+def test_eval_source_summary_keeps_first_unique_source_order() -> None:
+    from ai_reliability_lab.evaluation import _unique_sources
+
+    assert _unique_sources(["model-release.md", "model-release.md", "monitoring.md"]) == [
+        "model-release.md",
+        "monitoring.md",
+    ]

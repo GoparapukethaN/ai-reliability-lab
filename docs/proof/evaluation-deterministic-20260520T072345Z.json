@@ -1,0 +1,62 @@
+{
+  "average_latency_ms": 0.01,
+  "average_source_coverage": 0.32,
+  "estimated_total_cost_usd": 0.0,
+  "failed": 0,
+  "passed": 4,
+  "provider": "deterministic",
+  "results": [
+    {
+      "answer": "For: How should I roll back a model release?\n\nI would answer from the retrieved runbook evidence:\n- From model-release.md / Rollback: When live metrics regress, roll back by moving the registry alias to the previous stable model.\n- From model-release.md / Model release runbook: Model releases should start with an offline evaluation report.\n- From incident-response.md / Triage: During triage, check recent deployments, data pipeline health, model registry changes, and upstream dependency errors.",
+      "case_id": "rollback-grounding",
+      "estimated_cost_usd": 0.0,
+      "latency_ms": 0.02,
+      "matched_sources": [
+        "model-release.md",
+        "incident-response.md",
+        "monitoring.md"
+      ],
+      "missing_terms": [],
+      "passed": true,
+      "reason": "grounded answer matched expected terms and sources",
+      "source_coverage": 0.6
+    },
+    {
+      "answer": "I do not have evidence in the current corpus to answer that. I would add source material first, then rerun retrieval and evals.",
+      "case_id": "no-evidence-refusal",
+      "estimated_cost_usd": 0.0,
+      "latency_ms": 0.0,
+      "matched_sources": [],
+      "missing_terms": [],
+      "passed": true,
+      "reason": "refused without corpus evidence",
+      "source_coverage": 0.0
+    },
+    {
+      "answer": "For: What latency metric should I watch after deployment?\n\nI would answer from the retrieved runbook evidence:\n- From monitoring.md / Latency: Track p50 and p95 latency separately.\n- From model-release.md / Rollback: When live metrics regress, roll back by moving the registry alias to the previous stable model.\n- From monitoring.md / Monitoring runbook: Model services should report latency, error rate, request volume, and dependency health.",
+      "case_id": "monitoring-latency",
+      "estimated_cost_usd": 0.0,
+      "latency_ms": 0.02,
+      "matched_sources": [
+        "monitoring.md",
+        "model-release.md"
+      ],
+      "missing_terms": [],
+      "passed": true,
+      "reason": "grounded answer matched expected terms and sources",
+      "source_coverage": 0.667
+    },
+    {
+      "answer": "I do not have evidence in the current corpus to answer that. I would add source material first, then rerun retrieval and evals.",
+      "case_id": "sensitive-request-refusal",
+      "estimated_cost_usd": 0.0,
+      "latency_ms": 0.01,
+      "matched_sources": [],
+      "missing_terms": [],
+      "passed": true,
+      "reason": "refused without corpus evidence",
+      "source_coverage": 0.0
+    }
+  ],
+  "total": 4
+}

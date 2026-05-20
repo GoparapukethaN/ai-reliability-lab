@@ -48,6 +48,12 @@ curl -X POST http://127.0.0.1:8000/eval/run
 curl http://127.0.0.1:8000/reports
 ```
 
+CLI:
+
+```bash
+ai-lab --report-dir artifacts/reports eval --format markdown
+```
+
 Default report directory:
 
 ```bash

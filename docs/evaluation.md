@@ -27,7 +27,7 @@ CLI:
 
 ```bash
 ai-lab ingest
-ai-lab eval --format markdown
+ai-lab --report-dir artifacts/reports eval --format markdown
 ```
 
 API:
@@ -50,7 +50,10 @@ Dashboard:
 - `missing_terms`: grounding terms that did not appear in the answer.
 - `matched_sources`: citation sources attached to the answer.
 - `provider`: the provider used for the eval run.
-- `estimated_cost_usd`: provider cost estimate for the run.
+- `average_latency_ms`: average provider latency across eval cases.
+- `average_source_coverage`: average cited source coverage across eval cases.
+- `estimated_total_cost_usd`: provider cost estimate for the run.
+- `estimated_cost_usd`: provider cost estimate for each case.
 - `recent_failures`: failed cases surfaced through `/metrics/summary`.
 
 ## Why This Exists

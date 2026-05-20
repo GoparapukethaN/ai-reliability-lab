@@ -39,7 +39,9 @@ ai-lab --database-path /tmp/ai-reliability-demo.db query \
   "How should I roll back a model release?"
 ai-lab --database-path /tmp/ai-reliability-demo.db compare \
   "How should I roll back a model release?"
-ai-lab --database-path /tmp/ai-reliability-demo.db eval --format markdown
+ai-lab --database-path /tmp/ai-reliability-demo.db \
+  --report-dir /tmp/ai-reliability-reports \
+  eval --format markdown
 ai-lab --database-path /tmp/ai-reliability-demo.db traces
 ai-lab --database-path /tmp/ai-reliability-demo.db metrics
 ```
@@ -91,8 +93,12 @@ The exact trace id and latency change per run, but the important shape is stable
 - Total: 4
 - Passed: 4
 - Failed: 0
+- Average latency: 0.01 ms
+- Average source coverage: 0.32
 - Estimated cost: $0.000000
 ```
+
+The same run writes Markdown and JSON artifacts under the configured report directory.
 
 ## Metrics Output
 
