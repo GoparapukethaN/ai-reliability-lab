@@ -13,11 +13,13 @@ make verify
 Result:
 
 - Ruff check: clean
-- Pytest: 20 passed
+- Pytest: 25 passed
 - Frontend typecheck: passed
 - Frontend production build: passed
 - CLI smoke test: ingest, query, compare, providers, traces, eval, and metrics completed
   against a temporary database
+- Provider adapter tests cover mocked OpenAI/Ollama responses and provider errors.
+- Upload tests cover Markdown, PDF text extraction, and empty-PDF rejection.
 
 Tracked proof:
 

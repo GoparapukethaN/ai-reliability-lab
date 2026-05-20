@@ -1,9 +1,34 @@
+from io import BytesIO
 from pathlib import Path
 
 from fastapi.testclient import TestClient
+from pypdf import PdfWriter
+from pypdf.generic import DecodedStreamObject, DictionaryObject, NameObject
 
 from ai_reliability_lab.app import create_app
 from ai_reliability_lab.config import Settings
+
+
+def _pdf_bytes(text: str = "") -> bytes:
+    writer = PdfWriter()
+    page = writer.add_blank_page(width=612, height=792)
+    if text:
+        font = DictionaryObject(
+            {
+                NameObject("/Type"): NameObject("/Font"),
+                NameObject("/Subtype"): NameObject("/Type1"),
+                NameObject("/BaseFont"): NameObject("/Helvetica"),
+            }
+        )
+        stream = DecodedStreamObject()
+        stream.set_data(f"BT /F1 12 Tf 72 720 Td ({text}) Tj ET".encode())
+        page[NameObject("/Resources")] = DictionaryObject(
+            {NameObject("/Font"): DictionaryObject({NameObject("/F1"): writer._add_object(font)})}
+        )
+        page[NameObject("/Contents")] = writer._add_object(stream)
+    output = BytesIO()
+    writer.write(output)
+    return output.getvalue()
 
 
 def test_api_query_compare_traces_providers_and_documents(tmp_path: Path) -> None:
@@ -56,6 +81,36 @@ def test_api_uploads_text_document_into_corpus(tmp_path: Path) -> None:
     assert response.json()["documents"] == 1
     documents = client.get("/documents").json()
     assert documents[0]["source"] == "uploaded.md"
+
+
+def test_api_uploads_pdf_document_into_corpus(tmp_path: Path) -> None:
+    corpus = tmp_path / "corpus"
+    corpus.mkdir()
+    client = TestClient(create_app(Settings(corpus_dir=corpus, database_path=tmp_path / "lab.db")))
+
+    response = client.post(
+        "/documents/upload",
+        files={"file": ("runbook.pdf", _pdf_bytes("Rollback uses registry aliases."))},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["documents"] == 1
+    documents = client.get("/documents").json()
+    assert documents[0]["source"] == "runbook.pdf"
+
+
+def test_api_rejects_pdf_upload_when_no_text_can_be_extracted(tmp_path: Path) -> None:
+    corpus = tmp_path / "corpus"
+    corpus.mkdir()
+    client = TestClient(create_app(Settings(corpus_dir=corpus, database_path=tmp_path / "lab.db")))
+
+    response = client.post(
+        "/documents/upload",
+        files={"file": ("blank.pdf", _pdf_bytes())},
+    )
+
+    assert response.status_code == 400
+    assert response.json()["detail"] == "No text could be extracted from the PDF."
 
 
 def test_api_allows_local_dashboard_cors(tmp_path: Path) -> None:
